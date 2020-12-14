@@ -3,8 +3,7 @@
 
 import fileinput
 import sys
-#import functools
-#import operator
+import itertools
 
 if len(sys.argv) == 1:
     sys.argv += ["input_14"]
@@ -72,10 +71,10 @@ def work_p2(lines):
         else:
             m = (int(m[4:-1])| mask_or) & mask_and
             v = int(v)
-            bits = len(mask_float)
-            for i in range(1 << bits):
-                s = sum(((i >> b) & 1) * mask_float[b] for b in range(bits))
-                mem[m + s] = v
+            mem[m] = v
+            for i in range(1, len(mask_float) + 1):
+                for s in itertools.combinations(mask_float, i):
+                    mem[m + sum(s)] = v
     return sum(mem.values())
 
 def test_p1():
