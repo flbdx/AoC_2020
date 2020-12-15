@@ -12,31 +12,24 @@ sample_sequence="""0,3,6"""
 # good enough?
 def work_p1(lines, target=2020):
     start_sequence = [int(v) for v in list(lines)[0].strip().split(",")]
-    seen_numbers = set()
     positions = {}
     last_one = None
-    last_one_was_seen = False
     
     n = 0
-    for i in start_sequence:
+    for last_one in start_sequence:
         n += 1
-        positions[i] = (positions.get(i, (0,0))[1], n)
-        last_one = i
-        last_one_was_seen = last_one in seen_numbers
-        if not last_one_was_seen:
-            seen_numbers.add(last_one) # testing and updating in one pass would be great
+        p = positions.setdefault(last_one, [-1,-1])
+        p[0] = p[1]
+        p[1] = n
     
+    # p is a mutable list
+    # this will work like a reference to the stored value
     while n != target:
         n += 1
-        if last_one_was_seen:
-            a, b = positions[last_one]
-            last_one = b - a
-            last_one_was_seen = last_one in seen_numbers
-        else:
-            seen_numbers.add(last_one)
-            last_one = 0
-            last_one_was_seen = True
-        positions[last_one] = (positions.get(last_one, (0,0))[1], n)
+        last_one = 0 if p[0] == -1 else p[1] - p[0]
+        p = positions.setdefault(last_one, [-1,-1])
+        p[0] = p[1]
+        p[1] = n
     
     return last_one
 
