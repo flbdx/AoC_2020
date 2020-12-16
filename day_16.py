@@ -86,21 +86,22 @@ def solve_p2(fields, my_tickets, nearby_tickets):
         possibilities.append(set(field_names))
     
     results = {}
+    
+    for ticket in nearby_tickets:
+        for i in range(n_fields):
+            v = ticket[i]
+            for f, ranges in fields.items():
+                if not f in possibilities[i]:
+                    continue
+                valid = False
+                for r in ranges:
+                    if v >= r[0] and v <= r[1]:
+                        valid = True
+                        break
+                if not valid:
+                    possibilities[i].remove(f)
+    
     while True:
-        for ticket in nearby_tickets:
-            for i in range(n_fields):
-                v = ticket[i]
-                for f, ranges in fields.items():
-                    if not f in possibilities[i]:
-                        continue
-                    valid = False
-                    for r in ranges:
-                        if v >= r[0] and v <= r[1]:
-                            valid = True
-                            break
-                    if not valid:
-                        possibilities[i].remove(f)
-        
         found = set()
         for i in range(n_fields):
             if len(possibilities[i]) == 1:
@@ -112,6 +113,7 @@ def solve_p2(fields, my_tickets, nearby_tickets):
                         pass
         if len(results) == n_fields:
             break
+    
     return results
     
 def work_p2(lines):
