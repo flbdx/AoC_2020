@@ -29,16 +29,15 @@ def work_p2(lines, n_dims=3, cycles=6):
     min_coords = [0] * n_dims
     max_coords = [0] * n_dims
     for c in grid:
-        for d in range(n_dims):
-            min_coords[d] = min(c[d], min_coords[d])
-            max_coords[d] = max(c[d], max_coords[d])
+        min_coords = [min(c[d], min_coords[d]) for d in range(n_dims)]
+        max_coords = [max(c[d], max_coords[d]) for d in range(n_dims)]
     
     def n_active_neighboors(c):
         nonlocal grid, n_dims
         n_actives = 0
         dim_ranges = []
         for d in range(n_dims):
-            dim_ranges.append(list(range(c[d]-1, c[d]+2)))
+            dim_ranges.append(range(c[d]-1, c[d]+2))
         for c_ in itertools.product(*dim_ranges): # product returns a tuple
             if c_ == c:
                 continue
@@ -61,14 +60,12 @@ def work_p2(lines, n_dims=3, cycles=6):
         nmax_coords = [0] * n_dims
         dim_ranges = []
         for d in range(n_dims):
-            dim_ranges.append(list(range(min_coords[d]-1, max_coords[d]+2)))
+            dim_ranges.append(range(min_coords[d]-1, max_coords[d]+2))
         for c_ in itertools.product(*dim_ranges):
-            ns = next_state(c_)
-            if ns:
+            if next_state(c_):
                 ngrid.add(c_)
-                for d in range(n_dims):
-                    nmin_coords[d] = min(c_[d], nmin_coords[d])
-                    nmax_coords[d] = max(c_[d], nmax_coords[d])
+                nmin_coords = [min(c_[d], nmin_coords[d]) for d in range(n_dims)]
+                nmax_coords = [max(c_[d], nmax_coords[d]) for d in range(n_dims)]
         grid = ngrid
         min_coords = nmin_coords
         max_coords = nmax_coords
