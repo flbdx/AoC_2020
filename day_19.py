@@ -91,13 +91,13 @@ class Rule(object):
             else:
                 t = eval(t)
                 l.append(t)
-                if type(t) == type(1):
+                if type(t) == int:
                     self.depends_on.add(t)
                     Rule.all_rules.setdefault(t, Rule()).dependency_off.add(self.number)
         if len(l) != 0:
             self.expression.append(l)
         
-        if len(self.expression) == 1 and len(self.expression[0]) == 1 and type(self.expression[0][0]) == "str": # literal
+        if len(self.expression) == 1 and len(self.expression[0]) == 1 and type(self.expression[0][0]) == str: # literal
             self.regexp_str = self.expression[0][0]
     
     def is_ready(self):
@@ -110,23 +110,26 @@ class Rule(object):
         if not all(Rule.all_rules[n].is_ready() for n in self.depends_on):
             return False
         s = ""
-        if len(self.expression) > 1:
+        outer_parenthesis = (len(self.expression) > 1)
+        if outer_parenthesis:
             s += "("
         first = True
         for g in self.expression:
             if not first:
                 s += "|"
-            if len(g) > 1:
+            else:
+                first = False
+            inner_parenthesis = ('|' in g)
+            if inner_parenthesis:
                 s += "("
             for t in g:
-                if type(t) == type(1):
+                if type(t) == int:
                     s += Rule.all_rules[t].regexp_str
                 else:
                     s += t
-            if len(g) > 1:
+            if inner_parenthesis:
                 s += ")"
-            first = False
-        if len(self.expression) > 1:
+        if outer_parenthesis:
             s += ")"
         self.regexp_str = s
         return True
