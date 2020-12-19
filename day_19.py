@@ -135,7 +135,7 @@ class Rule(object):
         return repr(self.number)+": "+repr(self.expression)+" > "+repr(self.depends_on)+" < "+repr(self.dependency_off)
         #return repr(self.number)+": "+repr(self.expression)+ " # " + repr(self.regexp_str)
 
-def work_p1(lines):
+def work(lines, part=1):
     Rule.all_rules.clear()
     input_part = 0
     
@@ -150,7 +150,14 @@ def work_p1(lines):
             rule_number, expr = line.split(": ")
             rule_number = int(rule_number)
             
-            Rule.all_rules.setdefault(rule_number, Rule()).set_rule(rule_number, expr)
+            # the target is now at least one "42" pattern followed by n "42" patterns and n "31" patterns (n >= 1)
+            # I will use up to 5 repetition for the "8" rule, and up to 4 for the "11" rule
+            if part == 2 and rule_number == 8:
+                Rule.all_rules.setdefault(rule_number, Rule()).set_rule(rule_number, "42 | 42 42 | 42 42 42 | 42 42 42 42 | 42 42 42 42 42")
+            elif part == 2 and rule_number == 11:
+                Rule.all_rules.setdefault(rule_number, Rule()).set_rule(rule_number, "42 31 | 42 42 31 31 | 42 42 42 31 31 31 | 42 42 42 42 31 31 31 31")
+            else:
+                Rule.all_rules.setdefault(rule_number, Rule()).set_rule(rule_number, expr)
         else:
             inputs.append(line)
     
@@ -172,78 +179,18 @@ def work_p1(lines):
             ret += 1
     return ret
 
-def work_p2(lines):
-    Rule.all_rules.clear()
-    input_part = 0
-    
-    inputs = []
-    for line in lines:
-        line = line.strip()
-        if len(line) == 0:
-            input_part += 1
-            continue
-        
-        if input_part == 0:
-            rule_number, expr = line.split(": ")
-            rule_number = int(rule_number)
-            
-            Rule.all_rules.setdefault(rule_number, Rule()).set_rule(rule_number, expr)
-        else:
-            inputs.append(line)
-    
-    #print(Rule.all_rules[0])
-    #print(Rule.all_rules[8])
-    #print(Rule.all_rules[11])
-    #print(Rule.all_rules[42])
-    #print(Rule.all_rules[31])
-    
-    # the target is now at least one "42" pattern followed by n "42" patterns and n "31" patterns (n >= 1)
-    # I will limit n to 4, enough for the input file
-    
-    # build the 42 and 31 regexp
-    for special in [42, 31]:
-        to_parse = [special]
-        while len(to_parse) != 0:
-            rnumber = to_parse.pop(0)
-            r = Rule.all_rules[rnumber]
-            if r.is_ready():
-                continue
-            if not r.try_build_regexp():
-                for c in r.depends_on:
-                    if not Rule.all_rules[c].is_ready():
-                        to_parse.append(c)
-                to_parse.append(rnumber)
-
-    pattern_42 = Rule.all_rules[42].get_pattern()
-    pattern_31 = Rule.all_rules[31].get_pattern()
-    
-    # build a collection of patterns for our 0 rule
-    special_pattern = "({0})+({1}){{{3}}}({2}){{{3}}}"
-    special_patterns = []
-    for n in range(1, 5):
-        special_patterns.append(re.compile(special_pattern.format(pattern_42, pattern_42, pattern_31, n)))
-
-    ret = 0
-    for line in inputs:
-        for sp in special_patterns:
-            if sp.fullmatch(line) != None:
-                ret += 1
-                break
-    return ret
-    
-
 def test_p1():
-    assert work_p1(sample_input_p1.splitlines()) == 2
+    assert work(sample_input_p1.splitlines()) == 2
 test_p1()
 
 def p1():
-    print(work_p1(fileinput.input()))
+    print(work(fileinput.input()))
 p1()
 
 def test_p2():
-    assert work_p2(sample_input_p2.splitlines()) == 12
+    assert work(sample_input_p2.splitlines(), part=2) == 12
 test_p2()
 
 def p2():
-    print(work_p2(fileinput.input()))
+    print(work(fileinput.input(), part=2))
 p2()
