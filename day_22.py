@@ -52,47 +52,32 @@ def work_p1(lines):
         ret += (n_cards - n) * decks[winner][n]
     return ret
 
-def deck_signature(deck):
-    return b''.join(v.to_bytes(1, 'little') for v in deck)
-
-def rec_game(d1, d2, game):
-    ss1 = deck_signature(d1)
-    ss2 = deck_signature(d2)
-    # a cache, not really necessary, I didn't know...
-    cache_res = rec_game.cache.get(ss1+ss2, None)
-    if cache_res != None:
-        return cache_res
-    
+def rec_game(d1, d2, game):    
     p1_history = set()
     p2_history = set()
     
     rnd = 0
     while len(d1) > 0 and len(d2) > 0:
         rnd += 1
-        s1 = deck_signature(d1)
-        s2 = deck_signature(d2)
-        if s1 in p1_history or s2 in p2_history:
-            rec_game.cache[ss1 + ss2] = 1
-            return 1
-        p1_history.add(s1)
-        p2_history.add(s2)
+        if d1 in p1_history or d2 in p2_history:
+            return 1, d1, d2
+        p1_history.add(d1)
+        p2_history.add(d2)
         
-        c1 = d1.pop(0)
-        c2 = d2.pop(0)
+        c1, d1 = d1[0], d1[1:]
+        c2, d2 = d2[0], d2[1:]
         if len(d1) >= c1 and len(d2) >= c2:
-            round_winner = rec_game(d1[:c1], d2[:c2], game + 1)
+            round_winner, junk1, junk2 = rec_game(d1[:c1], d2[:c2], game + 1)
         else:
             round_winner = 1 if c1 > c2 else 2
         
         if round_winner == 1:
-            d1 += [c1, c2]
+            d1 += bytes((c1, c2))
         else:
-            d2 += [c2, c1]
+            d2 += bytes((c2, c1))
     
-    rec_game.cache[ss1 + ss2] = round_winner
-    return round_winner
+    return round_winner, d1, d2
 
-rec_game.cache = {}
 
 def work_p2(lines):
     p1 = "Player 1"
@@ -106,14 +91,14 @@ def work_p2(lines):
         if line.startswith("Player"):
             current_p = line[:-1]
         else:
-            decks[current_p] = decks.get(current_p, []) + [int(line)]
+            decks[current_p] = decks.get(current_p, b'') + int(line).to_bytes(1, 'little')
             assert int(line) < 256
     
     d1 = decks[p1]
     d2 = decks[p2]
     n_cards = len(d1) + len(d2)
     
-    winner = rec_game(d1, d2, 1)
+    winner, d1, d2 = rec_game(d1, d2, 1)
     
     ret = 0
     for n in range(n_cards):
