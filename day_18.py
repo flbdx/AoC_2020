@@ -71,23 +71,18 @@ def rec_calc_p1(tokens):
 def rec_calc_p2(tokens,operators):
     for op_char, op_func in operators:
         s = 0
-        while True:
-            found = False
-            for i in range(s, len(tokens)):
-                t = tokens[i]
+        while s < (len(tokens) - 1):
+            for s in range(s, len(tokens)):
+                t = tokens[s]
                 if t == op_char:
-                    op1 = tokens[i-1]
-                    op2 = tokens[i+1]
+                    op1 = tokens[s-1]
+                    op2 = tokens[s+1]
                     if type(op1) == list:
                         op1 = rec_calc_p2(op1, operators)
                     if type(op2) == list:
                         op2 = rec_calc_p2(op2, operators)
-                    tokens = tokens[:i-1] + [op_func(op1, op2)] + tokens[i+2:]
-                    found = True
-                    s = i
+                    tokens = tokens[:s-1] + [op_func(op1, op2)] + tokens[s+2:]
                     break
-            if not found:
-                break
     
     return tokens[0]
 

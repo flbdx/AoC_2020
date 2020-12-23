@@ -60,14 +60,14 @@ def rec_game(d1, d2, game):
     while len(d1) > 0 and len(d2) > 0:
         rnd += 1
         if d1 in p1_history or d2 in p2_history:
-            return 1, d1, d2
+            return 1, d1
         p1_history.add(d1)
         p2_history.add(d2)
         
         c1, d1 = d1[0], d1[1:]
         c2, d2 = d2[0], d2[1:]
         if len(d1) >= c1 and len(d2) >= c2:
-            round_winner, junk1, junk2 = rec_game(d1[:c1], d2[:c2], game + 1)
+            round_winner, junk = rec_game(d1[:c1], d2[:c2], game + 1)
         else:
             round_winner = 1 if c1 > c2 else 2
         
@@ -76,7 +76,7 @@ def rec_game(d1, d2, game):
         else:
             d2 += bytes((c2, c1))
     
-    return round_winner, d1, d2
+    return round_winner, (d1 if round_winner == 1 else d2)
 
 
 def work_p2(lines):
@@ -98,11 +98,11 @@ def work_p2(lines):
     d2 = decks[p2]
     n_cards = len(d1) + len(d2)
     
-    winner, d1, d2 = rec_game(d1, d2, 1)
+    winner, dw = rec_game(d1, d2, 1)
     
     ret = 0
     for n in range(n_cards):
-        ret += (n_cards - n) * (d1 if winner == 1 else d2)[n]
+        ret += (n_cards - n) * dw[n]
     return ret
 
 def test_p1():

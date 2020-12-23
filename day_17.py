@@ -35,9 +35,7 @@ def work_p2(lines, n_dims=3, cycles=6):
     def n_active_neighboors(c):
         nonlocal grid, n_dims
         n_actives = 0
-        dim_ranges = []
-        for d in range(n_dims):
-            dim_ranges.append(range(c[d]-1, c[d]+2))
+        dim_ranges = [(c[d]-1, c[d], c[d]+1) for d in range(n_dims)]
         for c_ in itertools.product(*dim_ranges): # product returns a tuple
             if c_ == c:
                 continue
@@ -58,9 +56,7 @@ def work_p2(lines, n_dims=3, cycles=6):
         ngrid = set()
         nmin_coords = [0] * n_dims
         nmax_coords = [0] * n_dims
-        dim_ranges = []
-        for d in range(n_dims):
-            dim_ranges.append(range(min_coords[d]-1, max_coords[d]+2))
+        dim_ranges = [range(min_coords[d]-1, max_coords[d]+2) for d in range(n_dims)]
         for c_ in itertools.product(*dim_ranges):
             if next_state(c_):
                 ngrid.add(c_)

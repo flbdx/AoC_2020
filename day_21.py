@@ -31,7 +31,7 @@ class Food(object):
 
 class Plan(object):
     def __init__(self):
-        self.foods = {}
+        self.foods = set()
         self.all_allergens = set()
         self.all_ingredients = set()
         self.foods_by_allergen = {}
@@ -46,11 +46,11 @@ class Plan(object):
             if len(line) == 0:
                 continue
             lnumber += 1
-            self.foods[lnumber] = Food(lnumber, line)
+            self.foods.add(Food(lnumber, line))
     
     def process_p1(self):
         # build some dictionaries with the foods and possible allergens associated with each ingredients 
-        for fid, f in self.foods.items():
+        for f in self.foods:
             for i in f.ingredients:
                 self.foods_by_ingredient[i] = self.foods_by_ingredient.get(i, []) + [f]
                 self.all_ingredients.add(i)
@@ -74,12 +74,12 @@ class Plan(object):
     def p1(self):
         ret = 0
         for ingredient in self.safe_ingredients:
-            ret += sum(1 for f in self.foods.values() if ingredient in f.ingredients)
+            ret += sum(1 for f in self.foods if ingredient in f.ingredients)
         return ret
     
     def process_p2(self):
         # remove the safe ingredients ...
-        for fid, food in self.foods.items():
+        for food in self.foods:
             food.ingredients.difference_update(self.safe_ingredients)
         self.all_ingredients.difference_update(self.safe_ingredients)
         for ingredient in self.safe_ingredients:
@@ -94,12 +94,12 @@ class Plan(object):
         def assign_allergen(ingredient, allergen):
             self.poisons[allergen] = ingredient
             todo_allergens.difference_update(set([allergen]))
-            for fid, food in self.foods.items():
+            for food in self.foods:
                 food.ingredients.difference_update(set([ingredient]))
                 food.known_allergens.difference_update(set([allergen]))
         
         while len(todo_allergens) != 0:
-            for food in self.foods.values():
+            for food in self.foods:
                 if len(food.ingredients) == 1 and len(food.known_allergens) == 1:
                     assign_allergen(food.ingredients.pop(), food.known_allergens.pop())
             

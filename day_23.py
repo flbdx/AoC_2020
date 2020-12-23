@@ -62,17 +62,14 @@ def work_p2(lines, moves):
     
     # no change from part 1
     for mov in range(moves):
-        picks = [nxt[cup], None, None]
-        picks[1] = nxt[picks[0]]
-        picks[2] = nxt[picks[1]]
+        pick0 = nxt[cup]
+        pick1 = nxt[pick0]
+        pick2 = nxt[pick1]
         
         dst_cup = l if cup == 1 else (cup - 1)
-        while dst_cup in picks:
+        while dst_cup == pick0 or dst_cup == pick1 or dst_cup == pick2:
             dst_cup = l if dst_cup == 1 else (dst_cup - 1)
-        o = nxt[dst_cup]
-        nxt[cup] = nxt[picks[2]]
-        nxt[dst_cup] = picks[0]
-        nxt[picks[2]] = o
+        nxt[cup], nxt[pick2], nxt[dst_cup] = nxt[pick2], nxt[dst_cup], pick0
         cup = nxt[cup]
     
     return nxt[1] * nxt[nxt[1]]

@@ -228,7 +228,7 @@ class Puzzle(object):
         # some forms will repeat.
         # but don't care, we can break as soon as we found some monsters
         max_monsters = 0
-        for flip in [Puzzle.flip_h, Puzzle.flip_v, Puzzle.flip_h]: # flip H, flip H + flip V, flip V
+        for flip in [Puzzle.flip_h, Puzzle.flip_v, Puzzle.flip_h, Puzzle.flip_v]: # no flip, flip H, flip H + flip V, flip V
             for rot in range(0, 4):
                 n_monsters = 0
                 for sy in range(0, self.solved_grid_width - monster_height+1):
