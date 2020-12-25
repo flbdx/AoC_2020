@@ -3,6 +3,7 @@
 #include <cassert>
 
 #include <iostream>
+#include <fstream>
 #include <string>
 #include <algorithm>
 #include <vector>
@@ -55,9 +56,14 @@ public:
             pick1 = nxt[pick0];
             pick2 = nxt[pick1];
             
-            dst_cup = (cup == 1) ? max : (cup - 1);
-            while (dst_cup == pick0 || dst_cup == pick1 || dst_cup == pick2) {
-                dst_cup = (dst_cup == 1) ? max : (dst_cup - 1);
+//             dst_cup = (cup == 1) ? max : (cup - 1);
+            (dst_cup = (cup - 1)) ? : (dst_cup = max);
+            while ((dst_cup == pick0) || dst_cup == pick1 || dst_cup == pick2) {
+                // g++ won't optimize this expression
+                // should be a sub and cmove
+                // clang++ wins by ko
+//                 dst_cup = (dst_cup == 1) ? max : (dst_cup - 1);
+                (--dst_cup) ? : (dst_cup = max); 
             }
             nxt[cup] = nxt[pick2];
             nxt[pick2] = nxt[dst_cup];
@@ -79,27 +85,33 @@ public:
     }
 };
 
-int main() {
+int main() {  
     {
-        Circle test_p1("389125467");
-        test_p1.do_moves(10);
-        assert(test_p1.p1() == "92658374");
-        test_p1.do_moves(90);
-        assert(test_p1.p1() == "67384529");
+        Circle test("389125467");
+        test.do_moves(10);
+        assert(test.p1() == "92658374");
+        test.do_moves(90);
+        assert(test.p1() == "67384529");
+        
+        test = Circle("389125467", 1000000);
+        test.do_moves(10000000);
+        assert(test.p2() == 149245887792);
     }
     {
-        Circle p1("716892543");
-        p1.do_moves(100);
-        std::cout << p1.p1() << std::endl;
-    }
-    {
-        Circle test_p2("389125467", 1000000);
-        test_p2.do_moves(10000000);
-        assert(test_p2.p2() == 149245887792);
-    }
-    {
-        Circle p2("716892543", 1000000);
-        p2.do_moves(10000000);
-        std::cout << p2.p2() << std::endl;
+        std::ifstream input("input_23");
+        if (!input.is_open()) {
+            return 1;
+        }
+        std::string line;
+        std::getline(input, line);
+        input.close();
+    
+        Circle work(line);
+        work.do_moves(100);
+        std::cout << work.p1() << std::endl;
+        
+        work = Circle(line, 1000000);
+        work.do_moves(10000000);
+        std::cout << work.p2() << std::endl;
     }
 }
